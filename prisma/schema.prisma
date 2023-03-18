@@ -11,11 +11,54 @@ datasource db {
 }
 
 model User {
-  id          String    @id @default(uuid())
-  email       String    @unique
-  username    String    @unique
+  id          String   @id @default(uuid())
+  email       String   @unique
+  isVerified  Boolean  @default(false) @map("is_verified")
+  username    String   @unique
   password    String
-  timeCreated DateTime  @default(now())
-  timeUpdated DateTime?
-  timeDeleted DateTime?
+  timeCreated DateTime @default(now()) @map("time_created")
+  timeUpdated DateTime @updatedAt @map("time_updated")
+  folders     Folder[]
+
+  @@map("users")
+}
+
+model Folder {
+  id          String     @id @default(uuid())
+  name        String
+  timeCreated DateTime   @default(now()) @map("time_created")
+  timeUpdated DateTime   @updatedAt @map("time_updated")
+  owner       User       @relation(fields: [ownerId], references: [id])
+  ownerId     String     @map("owner_id")
+  parent      Folder?    @relation(name: "FolderToFolder", fields: [parentId], references: [id])
+  parentId    String?    @map("parent_id")
+  children    Folder[]   @relation(name: "FolderToFolder")
+  questions   Question[]
+
+  @@map("folders")
+}
+
+model Question {
+  id          String   @id @default(uuid())
+  title       String
+  content     String
+  timeCreated DateTime @default(now()) @map("time_created")
+  timeUpdated DateTime @updatedAt @map("time_updated")
+  folder      Folder   @relation(fields: [folderId], references: [id])
+  folderId    String   @map("folder_id")
+  choices     Choice[]
+
+  @@map("questions")
+}
+
+model Choice {
+  id          String   @id @default(uuid())
+  content     String
+  isCorrect   Boolean  @default(false) @map("is_correct")
+  timeCreated DateTime @default(now())
+  timeUpdated DateTime @updatedAt
+  question    Question @relation(fields: [questionId], references: [id])
+  questionId  String   @map("question_id")
+
+  @@map("choices")
 }
