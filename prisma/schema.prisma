@@ -10,6 +10,12 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum UserRole {
+  ADMIN
+  STUDENT
+  INSTRUCTOR
+}
+
 model User {
   id          String   @id @default(uuid())
   email       String   @unique
@@ -19,6 +25,7 @@ model User {
   timeCreated DateTime @default(now()) @map("time_created")
   timeUpdated DateTime @updatedAt @map("time_updated")
   folders     Folder[]
+  role        UserRole
 
   @@map("users")
 }
